@@ -1,0 +1,14 @@
+{
+    "sender_email": "tin75vn@gmail.com",
+    "app_password": "hpomrxnuezkfdwzy",
+    "recipients": [
+        {
+            "name": "",
+            "email": "namdeptraiktvn@gmail.com"
+        }
+    ],
+    "emergency_letters": {
+        "h": "HCMUS AIOT: Emergency detected, please help!",
+        "o": "HCMUS AIOT: Important emergency detected, please help!"
+    }
+}

@@ -1,0 +1,323 @@
+[
+    {
+        "id": "8f5dc9ca7f2461b1",
+        "type": "tab",
+        "label": "HOME",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "443166d07cf3cdb9",
+        "type": "mqtt in",
+        "z": "8f5dc9ca7f2461b1",
+        "name": "",
+        "topic": "glove/gesture/result",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "e5f667c9bb1ca824",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 110,
+        "y": 180,
+        "wires": [
+            [
+                "20d75666561cf016",
+                "43113086d539a5b6"
+            ]
+        ]
+    },
+    {
+        "id": "20d75666561cf016",
+        "type": "function",
+        "z": "8f5dc9ca7f2461b1",
+        "name": "Build JSON",
+        "func": "msg.headers = {};\nmsg.headers[\"Content-Type\"] = \"application/json\";\n\nmsg.payload = {\n  value: msg.payload,\n  timestamp: new Date().toISOString()\n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 120,
+        "wires": [
+            [
+                "94826836fd8726db",
+                "10a88bc7d3e79baa"
+            ]
+        ]
+    },
+    {
+        "id": "94826836fd8726db",
+        "type": "http request",
+        "z": "8f5dc9ca7f2461b1",
+        "name": "POST result",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "query",
+        "url": "https://aiot-project-a24bc-default-rtdb.asia-southeast1.firebasedatabase.app/gestures.json",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 510,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "625fc122383b153e",
+        "type": "inject",
+        "z": "8f5dc9ca7f2461b1",
+        "name": "5 secs",
+        "props": [],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "5",
+        "topic": "",
+        "x": 100,
+        "y": 300,
+        "wires": [
+            [
+                "55193485d4ec549e"
+            ]
+        ]
+    },
+    {
+        "id": "55193485d4ec549e",
+        "type": "http request",
+        "z": "8f5dc9ca7f2461b1",
+        "name": "GET last 10 records",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "query",
+        "url": "https://aiot-project-a24bc-default-rtdb.asia-southeast1.firebasedatabase.app/gestures.json?orderBy=\"$key\"&limitToLast=10",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 300,
+        "y": 300,
+        "wires": [
+            [
+                "31fa3ed68e5055d5"
+            ]
+        ]
+    },
+    {
+        "id": "31fa3ed68e5055d5",
+        "type": "function",
+        "z": "8f5dc9ca7f2461b1",
+        "name": "Format Table",
+        "func": "let data = JSON.parse(msg.payload); \nlet tableData = []; \n\n// Bước 1: Gom dữ liệu thành mảng\nfor (let key in data) {\n    let item = data[key];\n    tableData.push({\n        Value: item.value,\n        Timestamp: item.timestamp  \n        \n        // giữ nguyên định dạng ISO để sort\n    });\n}\n\n// Bước 2: Sắp xếp theo thời gian giảm dần (mới nhất trước)\ntableData.sort((a, b) =>\n    new Date(b.Timestamp).getTime() - new Date(a.Timestamp).getTime()\n    );\n\n// Bước 3: Gán STT và định dạng lại Time\ntableData = tableData.map((item, index) => ({\n    STT: index + 1,\n    Value: item.Value,\n    Time: new Date(item.Timestamp).toLocaleString()\n    }));\n\n// Bước 4: Trả về dữ liệu\nmsg.payload = tableData;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 300,
+        "wires": [
+            [
+                "72af0f7c4ea224f1"
+            ]
+        ]
+    },
+    {
+        "id": "72af0f7c4ea224f1",
+        "type": "ui_table",
+        "z": "8f5dc9ca7f2461b1",
+        "group": "c626336f30bc4b1c",
+        "name": "10 tín hiệu gần nhất",
+        "order": 2,
+        "width": "6",
+        "height": "7",
+        "columns": [],
+        "outputs": 1,
+        "cts": true,
+        "x": 720,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "10a88bc7d3e79baa",
+        "type": "ui_template",
+        "z": "8f5dc9ca7f2461b1",
+        "group": "f1d7f21de278e106",
+        "name": "",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div style=\"font-size:18px; text-align:center;\">\n  <b>Ký tự nhận được:</b> {{msg.payload.value}}<br/>\n  <span style=\"font-size:14px;\">Thời gian: {{msg.payload.time}}</span>\n</div>\n",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "resendOnRefresh": false,
+        "templateScope": "local",
+        "className": "",
+        "x": 500,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "43113086d539a5b6",
+        "type": "function",
+        "z": "8f5dc9ca7f2461b1",
+        "name": "Set msg",
+        "func": "let now = new Date();\nlet timeStr = now.toLocaleTimeString('vi-VN') + ' ' + now.toLocaleDateString('vi-VN');\n\nmsg.payload = {\n    value: msg.payload,\n    time: timeStr\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 180,
+        "wires": [
+            [
+                "10a88bc7d3e79baa"
+            ]
+        ]
+    },
+    {
+        "id": "d1642d35177d5216",
+        "type": "mqtt in",
+        "z": "8f5dc9ca7f2461b1",
+        "name": "",
+        "topic": "glove/image/data",
+        "qos": "1",
+        "datatype": "utf8",
+        "broker": "e5f667c9bb1ca824",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 140,
+        "y": 360,
+        "wires": [
+            [
+                "f3a7e2f03b824ab1"
+            ]
+        ]
+    },
+    {
+        "id": "f3a7e2f03b824ab1",
+        "type": "ui_template",
+        "z": "8f5dc9ca7f2461b1",
+        "group": "ce8a0c8957898e44",
+        "name": "",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<div>\n    <img ng-src=\"{{msg.payload}}\" width=\"100%\">\n</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 340,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e286769405311f16",
+        "type": "ui_spacer",
+        "z": "8f5dc9ca7f2461b1",
+        "name": "spacer",
+        "group": "69fc69a32e5546b9",
+        "order": 4,
+        "width": "1",
+        "height": "1"
+    },
+    {
+        "id": "e5f667c9bb1ca824",
+        "type": "mqtt-broker",
+        "name": "mqtt-aiot-server",
+        "broker": "b3925009f3b14032b97860e7ed5a17dc.s1.eu.hivemq.cloud",
+        "port": "8883",
+        "tls": "",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": true,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "c626336f30bc4b1c",
+        "type": "ui_group",
+        "name": "Lịch Sử",
+        "tab": "b433eed85eb436b9",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "f1d7f21de278e106",
+        "type": "ui_group",
+        "name": "Trang chủ",
+        "tab": "b433eed85eb436b9",
+        "order": 4,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "ce8a0c8957898e44",
+        "type": "ui_group",
+        "name": "Ảnh",
+        "tab": "b433eed85eb436b9",
+        "order": 3,
+        "disp": true,
+        "width": "7",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "b433eed85eb436b9",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    }
+]
