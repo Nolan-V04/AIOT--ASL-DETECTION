@@ -7,7 +7,7 @@ from datetime import datetime
 def load_config():
     """Read configuration information from a JSON file."""
     try:
-        with open('emergency_config.json', 'r') as file:
+        with open('config/emergency_config.json', 'r') as file:
             config = json.load(file)
         return config.get('sender_email', ''), config.get('app_password', ''), config.get('recipients', []), config.get('emergency_letters', {})
     except FileNotFoundError:
@@ -25,7 +25,7 @@ def save_config(sender_email, app_password, recipients, emergency_letters):
         "recipients": recipients,  # List of dictionaries {email, name}
         "emergency_letters": emergency_letters  # Example: {'h': 'Help', 'e': 'Emergency'}
     }
-    with open('emergency_config.json', 'w') as file:
+    with open('config/emergency_config.json', 'w') as file:
         json.dump(config, file, indent=4)
     print("Configuration has been saved.")
 
