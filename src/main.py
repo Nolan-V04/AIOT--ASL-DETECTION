@@ -3,6 +3,7 @@ import numpy as np
 import time
 from tensorflow.keras.models import load_model
 import paho.mqtt.client as mqtt
+from sendImage import encode_and_publish  # Import module gửi ảnh
 from emergency_email import send_emergency_alert  # Import module gửi email
 
 # Load model
@@ -69,6 +70,7 @@ while True:
                 timestamp = time.strftime("%Y%m%d-%H%M%S")
                 cv2.imwrite(f"img/screenshot_{timestamp}.jpg", frame)
                 print(f"📸 Screenshot captured: screenshot_{timestamp}.jpg")
+                encode_and_publish(f"img/screenshot_{timestamp}.jpg")  # Gửi ảnh qua MQTT
                 screenshot_taken = True
         elif predicted_label == 'H':
             if label_start_time is None:
