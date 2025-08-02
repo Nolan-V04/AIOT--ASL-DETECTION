@@ -1,3 +1,4 @@
+import ssl
 import cv2
 import numpy as np
 import time
@@ -19,7 +20,9 @@ PASSWORD = "Aiottgmt25"
 
 mqtt_client = mqtt.Client()
 mqtt_client.username_pw_set(USERNAME, PASSWORD)
-mqtt_client.tls_set()
+mqtt_client.tls_set(cert_reqs=ssl.CERT_REQUIRED,
+                    tls_version=ssl.PROTOCOL_TLSv1_2)
+mqtt_client.tls_insecure_set(True)
 mqtt_client.connect(BROKER, PORT)
 mqtt_client.loop_start()
 
@@ -70,7 +73,7 @@ while True:
                 timestamp = time.strftime("%Y%m%d-%H%M%S")
                 cv2.imwrite(f"img/screenshot_{timestamp}.jpg", frame)
                 print(f"📸 Screenshot captured: screenshot_{timestamp}.jpg")
-                encode_and_publish(f"img/screenshot_{timestamp}.jpg")  # Gửi ảnh qua MQTT
+                encode_and_publish(f"img/screenshot_{timestamp}.jpg", mqtt_client)  # Gửi ảnh qua MQTT
                 screenshot_taken = True
         elif predicted_label == 'H':
             if label_start_time is None:
