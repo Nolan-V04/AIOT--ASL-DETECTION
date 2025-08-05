@@ -8,7 +8,7 @@
         }
     ],
     "emergency_letters": {
-        "h": "HCMUS AIOT: Emergency detected, please help!",
+        "D": "HCMUS AIOT: Emergency detected, please help!",
         "o": "HCMUS AIOT: Important emergency detected, please help!"
     }
 }
