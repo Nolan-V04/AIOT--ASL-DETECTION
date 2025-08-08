@@ -101,10 +101,10 @@ while True:
             elif current_time - label_start_time >= 3 and not is_recording:
                 label_start_time = current_time
                 is_recording = True
-                print("🟢 Started recording.") 
+                print("Started recording.") 
             elif is_recording and current_time - label_start_time >= 3:
                 is_recording = False
-                print("🔴 Stopped recording.")
+                print("Stopped recording.")
         elif predicted_label == 'C':
             if label_start_time is None:
                 label_start_time = current_time
@@ -112,7 +112,7 @@ while True:
             elif current_time - label_start_time >= 3 and not clear_sentence:
                 sentence = ""
                 clear_sentence = True
-                print("🟢 Sentence cleared.")
+                print("Sentence cleared.")
         elif predicted_label == 'Y':
             if label_start_time is None:
                 label_start_time = current_time
@@ -120,10 +120,10 @@ while True:
             elif current_time - label_start_time >= 3 and not sentence_sent:
                 if sentence:
                     mqtt_client.publish(TOPIC, sentence)
-                    print(f"📤 Sent sentence: {sentence}")
+                    print(f"Sent sentence: {sentence}")
                     sentence = ""
                 else:
-                    print("⚠️ No sentence to send.")
+                    print("No sentence to send.")
                 sentence_sent = True
                 is_recording = False
                 confirmed_label = None
@@ -134,7 +134,7 @@ while True:
                 label_hold_start_time = current_time
             elif current_time - label_hold_start_time >= 3:
                 sentence += confirmed_label
-                print(f"📝 Added to sentence: {confirmed_label}")
+                print(f"Added to sentence: {confirmed_label}")
                 confirmed_label = None
                 label_hold_start_time = None
         else:
