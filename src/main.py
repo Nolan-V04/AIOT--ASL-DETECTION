@@ -110,7 +110,7 @@ while True:
                 label_start_time = current_time
                 clear_sentence = False
             elif current_time - label_start_time >= 3 and not clear_sentence:
-                sentence = ""
+                sentence = sentence[:-1]
                 clear_sentence = True
                 print("🟢 Sentence cleared.")
         elif predicted_label == 'Y':
