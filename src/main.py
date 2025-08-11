@@ -51,7 +51,7 @@ sentence_sent = False
 confirmed_label = None
 label_hold_start_time = None
 countTimeLess = 0
-countdown_start_time = None  # Add this global variable
+countdown_start_time = None
 screenshot_imgtk = None
 screenshot_path = None
 
@@ -130,14 +130,13 @@ def process_frame():
 
         # Nếu đang chờ gửi ảnh, chỉ xử lý label Y, W và K để thoát
         if waiting_for_send_image and screenshot_taken and screenshot_path is not None and not image_sent:
-            # Giữ Y để gửi ảnh như cũ
             if predicted_label == 'Y':
                 if y_hold_start_time is None:
                     y_hold_start_time = current_time
                 elif current_time - y_hold_start_time >= 2:
                     encode_and_publish(screenshot_path, mqtt_client)
                     status = "Đã gửi ảnh qua MQTT!"
-                    screenshot_path = None  # Ẩn ảnh khỏi UI
+                    screenshot_path = None
                     waiting_for_send_image = False
                     screenshot_taken = False
                     image_sent = True
@@ -153,7 +152,7 @@ def process_frame():
                     y_hold_start_time = current_time
                 elif current_time - y_hold_start_time >= 2:
                     status = "Đã thoát khỏi chế độ chụp ảnh, không gửi ảnh."
-                    screenshot_path = None  # Ẩn ảnh khỏi UI
+                    screenshot_path = None
                     waiting_for_send_image = False
                     screenshot_taken = False
                     image_sent = False
@@ -325,7 +324,7 @@ class ASLApp:
         self.root = root
         self.root.title("🤟 ASL Detection UI")
         self.root.configure(bg="#23272f")
-        self.root.geometry("1000x540")  # Wider window for better layout
+        self.root.geometry("1000x540")
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         # Main container frame
